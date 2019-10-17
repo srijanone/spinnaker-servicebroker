@@ -12,12 +12,10 @@ import (
 
 	"github.com/golang/glog"
 	prom "github.com/prometheus/client_golang/prometheus"
-	"github.com/shawn-hurley/osb-broker-k8s-lib/middleware"
 
 	"github.com/pmorie/osb-broker-lib/pkg/metrics"
 	"github.com/pmorie/osb-broker-lib/pkg/rest"
 	"github.com/pmorie/osb-broker-lib/pkg/server"
-	"github.com/pmorie/osb-starter-pack/pkg/broker"
 
 	"github.com/srijanaravali/spinnaker-servicebroker/pkg/broker"
 )
@@ -44,6 +42,7 @@ func init() {
 	flag.StringVar(&options.TLSKey, "tlsKey", "", "base-64 encoded PEM block to use as the private key matching the TLS certificate.")
 	flag.BoolVar(&options.AuthenticateK8SToken, "authenticate-k8s-token", false, "option to specify if the broker should validate the bearer auth token with kubernetes")
 	flag.StringVar(&options.KubeConfig, "kube-config", "", "specify the kube config path to be used")
+	broker.AddFlags(&options.Options)
 	flag.Parse()
 }
 
@@ -74,7 +73,7 @@ func runWithContext(ctx context.Context) error {
 
 	addr := ":" + strconv.Itoa(options.Port)
 
-	b, err := broker.NewSpinnakerBroker(options.Options)
+	spinnakerBroker, err := broker.NewSpinnakerBroker(options.Options)
 	if err != nil {
 		return err
 	}
@@ -84,30 +83,30 @@ func runWithContext(ctx context.Context) error {
 	osbMetrics := metrics.New()
 	reg.MustRegister(osbMetrics)
 
-	api, err := rest.NewAPISurface(businessLogic, osbMetrics)
+	api, err := rest.NewAPISurface(spinnakerBroker, osbMetrics)
 	if err != nil {
 		return err
 	}
 
 	s := server.New(api, reg)
-	if options.AuthenticateK8SToken {
-		// get k8s client
-		k8sClient, err := getKubernetesClient(options.KubeConfig)
-		if err != nil {
-			return err
-		}
-		// Create a User Info Authorizer.
-		authz := middleware.SARUserInfoAuthorizer{
-			SAR: k8sClient.AuthorizationV1().SubjectAccessReviews(),
-		}
-		// create TokenReviewMiddleware
-		tr := middleware.TokenReviewMiddleware{
-			TokenReview: k8sClient.Authentication().TokenReviews(),
-			Authorizer:  authz,
-		}
-		// Use TokenReviewMiddleware.
-		s.Router.Use(tr.Middleware)
-	}
+	// if options.AuthenticateK8SToken {
+	// 	// get k8s client
+	// 	k8sClient, err := getKubernetesClient(options.KubeConfig)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	// Create a User Info Authorizer.
+	// 	authz := middleware.SARUserInfoAuthorizer{
+	// 		SAR: k8sClient.AuthorizationV1().SubjectAccessReviews(),
+	// 	}
+	// 	// create TokenReviewMiddleware
+	// 	tr := middleware.TokenReviewMiddleware{
+	// 		TokenReview: k8sClient.AuthenticationV1().TokenReviews(),
+	// 		Authorizer:  authz,
+	// 	}
+	// 	// Use TokenReviewMiddleware.
+	// 	s.Router.Use(tr.Middleware)
+	// }
 
 	glog.Infof("Starting broker!")
 
@@ -128,6 +127,28 @@ func runWithContext(ctx context.Context) error {
 	}
 	return err
 }
+
+// func getKubernetesClient(kubeConfigPath string) (clientset.Interface, error) {
+// 	var clientConfig *clientrest.Config
+// 	var err error
+// 	if kubeConfigPath == "" {
+// 		clientConfig, err = clientrest.InClusterConfig()
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 	} else {
+// 		config, err := clientcmd.LoadFromFile(kubeConfigPath)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+
+// 		clientConfig, err = clientcmd.NewDefaultClientConfig(*config, &clientcmd.ConfigOverrides{}).ClientConfig()
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 	}
+// 	return clientset.NewForConfig(clientConfig)
+// }
 
 func cancelOnInterrupt(ctx context.Context, f context.CancelFunc) {
 	term := make(chan os.Signal)

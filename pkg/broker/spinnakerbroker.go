@@ -1,14 +1,11 @@
 package broker
 
-import (
-	"fmt"
-)
-
 // Runs at startup and bootstraps the broker.
 func NewSpinnakerBroker(o Options) (*SpinnakerBroker, error) {
-	fmt.Print("I am here")
 	bl := SpinnakerBroker{
-		gateUrl: "localhost:8084",
+		async:     o.Async,
+		gateUrl:   "localhost:8084",
+		instances: make(map[string]*exampleInstance, 10),
 	}
 	return &bl, nil
 }

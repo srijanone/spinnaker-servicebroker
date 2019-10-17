@@ -74,8 +74,6 @@ github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORN
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
-github.com/kubernetes-sigs/go-open-service-broker-client v0.0.0-20180928143052-79b374a2302f h1:pSYezeN6S48KEWvnMNvkJhmI9zBjEB5gOSGYt6+t4uM=
-github.com/kubernetes-sigs/go-open-service-broker-client v0.0.0-20180928143052-79b374a2302f/go.mod h1:s8wBC55/DEkNa3YMY1WLgpT33Ghpmw7v+waIxh15dYI=
 github.com/kubernetes/client-go v6.0.0+incompatible h1:SwoXgvkzu9X4zhj1JekPxu2nUTzJsQ9lotEQZ+ClnFs=
 github.com/kubernetes/client-go v6.0.0+incompatible/go.mod h1:kszVi2i+FeqECZHhjpkV5h5zM0GnURfJv897YzgoAQ8=
 github.com/mailru/easyjson v0.0.0-20160728113105-d5b7844b561a/go.mod h1:C1wdFJiN94OJF2b5HbByQZoLdCWB1Yqtg26g4irojpc=
@@ -107,8 +105,6 @@ github.com/pmorie/go-open-service-broker-client v0.0.0-20180928143052-79b374a230
 github.com/pmorie/go-open-service-broker-client v0.0.0-20180928143052-79b374a2302f/go.mod h1:6d5FSWVMC68G2RoLKixGVhkoNlgoEC/phmruM0yHdjQ=
 github.com/pmorie/osb-broker-lib v0.0.0-20180423193413-f4ca270ef323 h1:XLfRDyWU9vw6frOtFDBkfaMEyBLMcjWYMK+irj0pYd8=
 github.com/pmorie/osb-broker-lib v0.0.0-20180423193413-f4ca270ef323/go.mod h1:2JDswJTrX9wBIJI2V5B8JFLWTXl7b/7+vysy0aKbZo0=
-github.com/pmorie/osb-starter-pack v0.0.0-20180327051653-0ea21d12ee89 h1:V0TAbXI9xH1ISeZypDsUgFbNQFq11tvDoRQ/JeE5hxU=
-github.com/pmorie/osb-starter-pack v0.0.0-20180327051653-0ea21d12ee89/go.mod h1:fdhWu0BEva3AgidbwuIS49U8purEam4Cf6EuUQfcfV8=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v1.0.0 h1:vrDKnkGzuGvhNAL56c7DBz29ZL+KxnoR0x7enabFceM=
 github.com/prometheus/client_golang v1.0.0/go.mod h1:db9x61etRT2tGnBNRi70OPL5FsnadC4Ky3P0J6CfImo=
