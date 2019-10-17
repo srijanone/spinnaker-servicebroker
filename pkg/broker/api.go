@@ -14,47 +14,36 @@ func truePtr() *bool {
 	return &b
 }
 
+func falsePtr() *bool {
+	b := false
+	return &b
+}
+
 func (b *SpinnakerBroker) GetCatalog(c *broker.RequestContext) (*broker.CatalogResponse, error) {
-	// Your catalog business logic goes here
+	// Your catalog business logic goes here.
 	response := &broker.CatalogResponse{}
 	osbResponse := &osb.CatalogResponse{
 		Services: []osb.Service{
 			{
-				Name:          "example-starter-pack-service",
+				Name:          "Spinnaker Pipeline as Service.",
 				ID:            "4f6e6cf6-ffdd-425f-a2c7-3c9258ad246a",
-				Description:   "The example service from the osb starter pack!",
-				Bindable:      true,
+				Description:   "Spinnaker Pipeline as Service.",
+				Bindable:      false,
 				PlanUpdatable: truePtr(),
-				Metadata: map[string]interface{}{
-					"displayName": "Example starter pack service",
-					"imageUrl":    "https://avatars2.githubusercontent.com/u/19862012?s=200&v=4",
-				},
 				Plans: []osb.Plan{
 					{
-						Name:        "default",
+						Name:        "k8s-bake-approve-deploy-s3",
 						ID:          "86064792-7ea2-467b-af93-ac9694d96d5b",
-						Description: "The default plan for the starter pack example service",
+						Description: "Pipeline template for K8S(Manifest Based) provider using highlander strategy and S3 as artifact storage.",
 						Free:        truePtr(),
-						Schemas: &osb.Schemas{
-							ServiceInstance: &osb.ServiceInstanceSchema{
-								Create: &osb.InputParametersSchema{
-									Parameters: map[string]interface{}{
-										"type": "object",
-										"properties": map[string]interface{}{
-											"color": map[string]interface{}{
-												"type":    "string",
-												"default": "Clear",
-												"enum": []string{
-													"Clear",
-													"Beige",
-													"Grey",
-												},
-											},
-										},
-									},
-								},
-							},
-						},
+						Bindable:    falsePtr(),
+					},
+					{
+						Name:        "k8s-bake-deploy-s3",
+						ID:          "86064792-7ea2-467b-af93-bc9694d96d5b",
+						Description: "Pipeline template for K8S(Manifest Based) provider using highlander strategy and S3 as artifact storage.",
+						Free:        truePtr(),
+						Bindable:    falsePtr(),
 					},
 				},
 			},
@@ -71,6 +60,7 @@ func (b *SpinnakerBroker) GetCatalog(c *broker.RequestContext) (*broker.CatalogR
 func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.RequestContext) (*broker.ProvisionResponse, error) {
 	// Your provision business logic goes here
 
+	// Send request to spinnaker to create the pipeline.
 	// example implementation:
 	b.Lock()
 	defer b.Unlock()
@@ -131,6 +121,7 @@ func (b *SpinnakerBroker) LastOperation(request *osb.LastOperationRequest, c *br
 	return nil, nil
 }
 
+// Not used as Services and ServicePlans are non-bindable.
 func (b *SpinnakerBroker) Bind(request *osb.BindRequest, c *broker.RequestContext) (*broker.BindResponse, error) {
 	// Your bind business logic goes here
 
@@ -157,6 +148,7 @@ func (b *SpinnakerBroker) Bind(request *osb.BindRequest, c *broker.RequestContex
 	return &response, nil
 }
 
+// Not used as Services and ServicePlans are non-bindable.
 func (b *SpinnakerBroker) Unbind(request *osb.UnbindRequest, c *broker.RequestContext) (*broker.UnbindResponse, error) {
 	// Your unbind business logic goes here
 	return &broker.UnbindResponse{}, nil

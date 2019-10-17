@@ -5,6 +5,7 @@ import (
 )
 
 type Options struct {
+	GateUrl     string
 	CatalogPath string
 	Async       bool
 }
@@ -12,7 +13,7 @@ type Options struct {
 type SpinnakerBroker struct {
 	async bool
 	sync.RWMutex
-	gateUrl   string
+	GateUrl   string
 	instances map[string]*exampleInstance
 }
 

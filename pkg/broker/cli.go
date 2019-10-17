@@ -10,4 +10,5 @@ import (
 func AddFlags(o *Options) {
 	flag.StringVar(&o.CatalogPath, "catalogPath", "", "The path to the catalog")
 	flag.BoolVar(&o.Async, "async", false, "Indicates whether the broker is handling the requests asynchronously.")
+	flag.StringVar(&o.GateUrl, "GateUrl", "localhost:8084", "Spinnaker Gate Url.")
 }
