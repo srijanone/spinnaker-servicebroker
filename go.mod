@@ -22,7 +22,7 @@ require (
 	github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4 // indirect
 	github.com/prometheus/common v0.7.0 // indirect
 	github.com/prometheus/procfs v0.0.5 // indirect
-	github.com/shawn-hurley/osb-broker-k8s-lib v0.0.0-20180430125558-bed19ac36ffe
+	github.com/shawn-hurley/osb-broker-k8s-lib v0.0.0-20180430125558-bed19ac36ffe // indirect
 	github.com/spf13/cobra v0.0.5 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	go.starlark.net v0.0.0-20191016215632-c9eda478e54e // indirect
@@ -33,6 +33,6 @@ require (
 	golang.org/x/time v0.0.0-20161028155119-f51c12702a4d // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	k8s.io/api v0.0.0-20191010143144-fbf594f18f80 // indirect
-	k8s.io/client-go v11.0.0+incompatible
+	k8s.io/client-go v11.0.0+incompatible // indirect
 	k8s.io/utils v0.0.0-20190221042446-c2654d5206da // indirect
 )

@@ -9,18 +9,9 @@ import (
 	"github.com/pmorie/osb-broker-lib/pkg/broker"
 )
 
-func truePtr() *bool {
-	b := true
-	return &b
-}
-
-func falsePtr() *bool {
-	b := false
-	return &b
-}
-
 func (b *SpinnakerBroker) GetCatalog(c *broker.RequestContext) (*broker.CatalogResponse, error) {
-	// Your catalog business logic goes here.
+
+	// @TODO: Persist this in some sort of storage.
 	response := &broker.CatalogResponse{}
 	osbResponse := &osb.CatalogResponse{
 		Services: []osb.Service{
@@ -58,8 +49,6 @@ func (b *SpinnakerBroker) GetCatalog(c *broker.RequestContext) (*broker.CatalogR
 }
 
 func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.RequestContext) (*broker.ProvisionResponse, error) {
-	// Your provision business logic goes here
-
 	// Send request to spinnaker to create the pipeline.
 	// example implementation:
 	b.Lock()
@@ -117,7 +106,6 @@ func (b *SpinnakerBroker) Deprovision(request *osb.DeprovisionRequest, c *broker
 
 func (b *SpinnakerBroker) LastOperation(request *osb.LastOperationRequest, c *broker.RequestContext) (*broker.LastOperationResponse, error) {
 	// Your last-operation business logic goes here
-
 	return nil, nil
 }
 
