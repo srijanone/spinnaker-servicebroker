@@ -4,7 +4,7 @@ package broker
 func NewSpinnakerBroker(o Options) (*SpinnakerBroker, error) {
 	bl := SpinnakerBroker{
 		async:     o.Async,
-		GateUrl:   "http://localhost:8084/",
+		GateUrl:   o.GateUrl,
 		instances: make(map[string]*exampleInstance, 10),
 	}
 	return &bl, nil
