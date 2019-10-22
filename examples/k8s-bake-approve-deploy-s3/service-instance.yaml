@@ -1,0 +1,19 @@
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: k8s-bake-approve-deploy-s3
+spec:
+  clusterServiceClassExternalName: spinnaker-pipeline-as-service
+  clusterServicePlanExternalName: k8s-bake-approve-deploy-s3
+  parameters:
+    namespace: default
+    k8s_account: my-k8-account
+    helm_package_s3_object_path: s3://spin-helm/node-1.0.0.tgz
+    helm_override_file_s3_object_path: s3://spin-helm/values.yaml
+    docker_registry_org: srijanlabs
+    docker_registry: docker.io
+    docker_repository: srijanlabs/node
+    hal_s3_account: my-s3-account
+    hal_docker_registry_account: my-docker-registry
+    docker_image_tag: 0.1.0
+    spinnaker_application: my-app
