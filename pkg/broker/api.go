@@ -14,7 +14,7 @@ import (
 
 func (b *SpinnakerBroker) GetCatalog(c *broker.RequestContext) (*broker.CatalogResponse, error) {
 
-	// @TODO: Persist this in some sort of storage.
+	// @TODO: Fetch these from spinnaker.
 	response := &broker.CatalogResponse{}
 	osbResponse := &osb.CatalogResponse{
 		Services: []osb.Service{
