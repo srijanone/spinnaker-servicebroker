@@ -12,7 +12,7 @@ image: ## Builds docker image
 	docker build . -t $(IMAGE):$(TAG)
 
 clean: ## Cleans up build artifacts
-	rm -f servicebroker
+	rm -f spinnaker-servicebroker
 	rm -f servicebroker-linux
 	rm -f packaging/helm/index.yaml
 	rm -f packaging/helm/spinnaker-servicebroker-*.tgz
