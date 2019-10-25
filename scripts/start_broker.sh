@@ -2,5 +2,5 @@
 
 spinnaker-servicebroker \
   -logtostderr \
-  -GateUrl=localhost:8084 \
-  -insecure=true
+  -GateUrl=${GATE_URL:=http://localhost:8084} \
+  --insecure

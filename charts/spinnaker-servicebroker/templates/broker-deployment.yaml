@@ -28,13 +28,10 @@ spec:
         command:
         - /usr/local/bin/spinnaker-servicebroker
         args:
-        - --port
-        - "8443"
+        - --port=8443
         - -logtostderr
-        - -GateUrl
-        - "spin-gate.spinnaker:8084"
-        - -insecure
-        - "true"
+        - -GateUrl={{ .Values.spinnaker.gate_url }}
+        - --insecure
         ports:
         - containerPort: 8443
         readinessProbe:

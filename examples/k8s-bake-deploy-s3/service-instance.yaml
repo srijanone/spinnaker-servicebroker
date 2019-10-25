@@ -6,7 +6,8 @@ spec:
   clusterServiceClassExternalName: spinnaker-pipeline-as-service
   clusterServicePlanExternalName: k8s-bake-deploy-s3
   parameters:
-    pipeline_name: test-11
+    pipeline_template: k8s-bake-deploy-s3
+    pipeline_name: k8s-bake-deploy-s3
     namespace: default
     k8s_account: my-k8-v2-account
     helm_package_s3_object_path: s3://spin-helm/node-1.0.0.tgz
