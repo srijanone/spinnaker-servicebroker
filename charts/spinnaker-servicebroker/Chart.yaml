@@ -1,0 +1,3 @@
+name: spinnaker-servicebroker
+description: A chart for the spinnaker-servicebroker.
+version: 0.1.0

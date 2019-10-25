@@ -1,0 +1,196 @@
+{
+  "schema": "v2",
+  "variables": [
+    {
+      "name": "namespace",
+      "description": "Kubernetes namespace where the service would be deployed",
+      "type": "string",
+      "defaultValue": "default"
+    },
+    {
+      "name": "k8s_account",
+      "description": "A Spinnaker account corresponds to a physical Kubernetes cluster. If you are unsure which account to use, talk to your Spinnaker admin.",
+      "type": "string"
+    },
+    {
+      "name": "helm_package_s3_object_path",
+      "description": "Path to s3 object (example format:s3://bucket/package/package-1.0.0.tgz)",
+      "type": "string"
+    },
+    {
+      "name": "helm_override_file_s3_object_path",
+      "description": "Path to helm override file (s3://bucket/package/values.yaml)",
+      "type": "string"
+    },
+    {
+      "name": "docker_registry_org",
+      "type": "string",
+      "description": "Org for Docker Registry."
+    },
+    {
+      "name": "docker_registry",
+      "type": "string",
+      "description": "Docker Registry for the images",
+      "defaultValue": "index.docker.io"
+    },
+    {
+      "name": "docker_repository",
+      "type": "string",
+      "description": "Docker Image to be deployed(athakur/node)"
+    },
+    {
+      "name": "hal_s3_account",
+      "description": "Hal S3 account(https://www.spinnaker.io/setup/artifacts/s3/)",
+      "type": "string"
+    },
+    {
+      "name": "hal_docker_registry_account",
+      "description": "Hal Docker Registry Account (https://www.spinnaker.io/setup/install/providers/docker-registry/)",
+      "type": "string"
+    },
+    {
+      "name": "docker_image_tag",
+      "description": "Tag of the docker image. Ideally dev/stage should be tagged in <branch-name>-<date> and prod: <semver>-<date>",
+      "type": "string"
+    },
+    {
+      "name": "spinnaker_application",
+      "type": "string"
+    }
+  ],
+  "id": "k8s-bake-deploy-s3",
+  "protect": false,
+  "metadata": {
+    "name": "Bake Deploy",
+    "description": "Bake and deploy using S3 as artifact storage and no approval required. Can be used for non-prod.",
+    "owner": "platform@srijan.net",
+    "scopes": ["global"]
+  },
+  "pipeline": {
+    "expectedArtifacts": [
+      {
+        "defaultArtifact": {
+          "id": "d0d997c2-f5b7-4693-b2cd-3f3a0c8a8cf1",
+          "name": "helm-package-default",
+          "type": "s3/object",
+          "reference": "${ templateVariables.helm_package_s3_object_path }",
+          "version": ""
+        },
+        "displayName": "Helm Package",
+        "id": "helm-package-id",
+        "matchArtifact": {
+          "id": "b63b7529-b8a5-4202-abd6-fd66c5c3bb22",
+          "type": "s3/object",
+          "name": "${ templateVariables.helm_package_s3_object_path }"
+        },
+        "useDefaultArtifact": true,
+        "usePriorArtifact": false
+      },
+      {
+        "defaultArtifact": {
+          "id": "f080f70c-2d9d-44ff-a140-a26f7dc7038e",
+          "reference": "${ templateVariables.helm_override_file_s3_object_path }",
+          "type": "s3/object"
+        },
+        "displayName": "Helm override file.",
+        "id": "helm-override-file-id",
+        "matchArtifact": {
+          "id": "7226a742-efb6-443e-be5b-86f9241db03f",
+          "name": "${ templateVariables.helm_override_file_s3_object_path }",
+          "type": "s3/object"
+        },
+        "useDefaultArtifact": true,
+        "usePriorArtifact": false
+      },
+      {
+        "defaultArtifact": {
+          "customKind": true,
+          "id": "cccc81ec-b0ac-4148-82e9-5ccddc98bc12"
+        },
+        "displayName": "Docker Image",
+        "id": "docker-image-id",
+        "matchArtifact": {
+          "id": "67e298cc-9c92-49cb-afe6-3213dd21e29a",
+          "name": "${ templateVariables.docker_registry }/${ templateVariables.docker_repository }",
+          "type": "docker/image"
+        },
+        "useDefaultArtifact": false,
+        "usePriorArtifact": false
+      }
+    ],
+    "lastModifiedBy": "anonymous",
+    "updateTs": "0",
+    "notifications": [],
+    "limitConcurrent": true,
+    "keepWaitingPipelines": false,
+    "stages": [
+      {
+        "name": "Bake (Manifest)",
+        "namespace": "${ templateVariables.namespace }",
+        "outputName": "helm2",
+        "overrides": {},
+        "requisiteStageRefIds": [],
+        "refId" : "bake-manifest-refId",
+        "templateRenderer": "HELM2",
+        "type": "bakeManifest",
+        "inputArtifacts": [
+          {
+            "account": "${ templateVariables.hal_s3_account }",
+            "id": "helm-package-id"
+          },
+          {
+            "account": "${ templateVariables.hal_s3_account }",
+            "id": "helm-override-file-id" 
+          }
+        ],
+        "expectedArtifacts": [
+          {
+           "defaultArtifact": {},
+           "displayName": "base64-artifact",
+           "id": "456b03e4-cc2e-4d3d-ab97-ef003a1ebb47",
+           "matchArtifact": {
+            "kind": "base64",
+            "name": "base64-artifact",
+            "type": "embedded/base64"
+           },
+           "useDefaultArtifact": false,
+           "usePriorArtifact": false
+          }
+        ]
+      },
+      {
+        "name": "Deploy (Manifest)",
+        "namespaceOverride": "${ templateVariables.namespace }",
+        "refId": "deploy-manifest-refId",
+        "requiredArtifactIds": [
+          "docker-image-id"
+        ],
+        "requiredArtifacts": [],
+        "requisiteStageRefIds": [
+          "bake-manifest-refId"
+        ],
+        "type": "deployManifest",
+        "cloudProvider": "kubernetes",
+        "account": "${ templateVariables.k8s_account }",
+        "manifestArtifactAccount": "embedded-artifact",
+        "manifestArtifactId": "456b03e4-cc2e-4d3d-ab97-ef003a1ebb47",
+        "moniker": {
+          "app": "${ templateVariables.spinnaker_application }"
+        },
+        "skipExpressionEvaluation": false,
+        "source": "artifact"
+      }
+    ],
+    "triggers": [
+      {
+        "account": "${ templateVariables.hal_docker_registry_account }",
+        "enabled": true,
+        "organization": "${ templateVariables.docker_registry_org }",
+        "registry": "${ templateVariables.docker_registry }",
+        "repository": "${ templateVariables.docker_repository }",
+        "tag": "${ templateVariables.docker_image_tag }",
+        "type": "docker"
+      }
+    ]
+  }
+}
