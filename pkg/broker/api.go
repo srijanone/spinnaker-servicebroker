@@ -1,9 +1,6 @@
 package broker
 
 import (
-	"bytes"
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -67,49 +64,12 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 
 	params := request.Parameters
 
-	// This is a bit clunky and needs fix. Need a storage provider here.
-	template := params["pipeline_template"].(string)
-	switch template {
-	case "k8s-bake-deploy-s3":
-
-		pipeline, err := NewSpinnakerPipeline(params)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		requestBody, _ := json.Marshal(pipeline)
-		resp, err := http.Post(restEndpoint, "application/json", bytes.NewBuffer(requestBody))
-		if err != nil {
-			log.Fatalln(err)
-		}
-		defer resp.Body.Close()
-
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		log.Println(string(body))
-	case "k8s-bake-approve-deploy-s3":
-
-		pipeline, err := NewSpinnakerPipeline(params)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		requestBody, _ := json.Marshal(pipeline)
-		resp, err := http.Post(restEndpoint, "application/json", bytes.NewBuffer(requestBody))
-		if err != nil {
-			log.Fatalln(err)
-		}
-		defer resp.Body.Close()
-
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		log.Println(string(body))
-
+	pipeline, err := NewSpinnakerPipeline(params)
+	if err != nil {
+		log.Fatalln(err)
 	}
+	CreatePipeline(restEndpoint, pipeline)
+
 	// Check to see if this is the same instance
 	if i := b.instances[request.InstanceID]; i != nil {
 		if i.Match(serviceInstance) {
