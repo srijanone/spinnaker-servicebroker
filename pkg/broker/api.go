@@ -12,6 +12,7 @@ import (
 func (b *SpinnakerBroker) GetCatalog(c *broker.RequestContext) (*broker.CatalogResponse, error) {
 
 	// @TODO: Fetch these from spinnaker.
+
 	response := &broker.CatalogResponse{}
 	osbResponse := &osb.CatalogResponse{
 		Services: []osb.Service{
@@ -70,7 +71,8 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 	}
 	CreatePipeline(restEndpoint, pipeline)
 
-	// Check to see if this is the same instance
+	// Check to see if this is the same instance.
+	// @TODO: Needs fix. Need to get persistence.
 	if i := b.instances[request.InstanceID]; i != nil {
 		if i.Match(serviceInstance) {
 			response.Exists = true
@@ -94,15 +96,15 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 }
 
 func (b *SpinnakerBroker) Deprovision(request *osb.DeprovisionRequest, c *broker.RequestContext) (*broker.DeprovisionResponse, error) {
-	// Your deprovision business logic goes here
 
-	// example implementation:
-	b.Lock()
-	defer b.Unlock()
-
+	restEndpoint := b.GateUrl + "/pipelines/v2poc/k8s-bake-deploy-s3"
+	requestBody := &requestBodyDelete{
+		Application:  "v2poc",
+		PipelineName: "k8s-bake-deploy-s3",
+	}
 	response := broker.DeprovisionResponse{}
 
-	delete(b.instances, request.InstanceID)
+	DeletePipeline(restEndpoint, requestBody)
 
 	if request.AcceptsIncomplete {
 		response.Async = b.async
