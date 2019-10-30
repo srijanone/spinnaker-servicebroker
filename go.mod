@@ -7,6 +7,7 @@ require (
 	github.com/cosiner/argv v0.0.1 // indirect
 	github.com/go-delve/delve v1.3.1 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
+	github.com/google/uuid v1.1.1
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/imdario/mergo v0.3.8 // indirect
