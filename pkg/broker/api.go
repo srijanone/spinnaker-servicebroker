@@ -1,42 +1,56 @@
 package broker
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/golang/glog"
+	"github.com/google/uuid"
 	osb "github.com/pmorie/go-open-service-broker-client/v2"
 	"github.com/pmorie/osb-broker-lib/pkg/broker"
 )
 
 func (b *SpinnakerBroker) GetCatalog(c *broker.RequestContext) (*broker.CatalogResponse, error) {
 
-	// @TODO: Fetch these from spinnaker.
+	restEndpoint := b.GateUrl + "/v2/pipelineTemplates"
+
+	resp, err := http.Get(restEndpoint)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	var pipelineTemplates []interface{}
+
+	json.Unmarshal([]byte(body), &pipelineTemplates)
+	var plans []osb.Plan
+	for _, pipelineTemplate := range pipelineTemplates {
+		data := pipelineTemplate.(map[string]interface{})
+		name := data["id"].(string)
+		metadata := data["metadata"].(map[string]interface{})
+		plan := osb.Plan{
+			Name:        name,
+			ID:          uuid.New().String(),
+			Description: metadata["description"].(string),
+			Free:        truePtr(),
+			Bindable:    falsePtr(),
+		}
+		plans = append(plans, plan)
+	}
+
 	response := &broker.CatalogResponse{}
 	osbResponse := &osb.CatalogResponse{
 		Services: []osb.Service{
 			{
 				Name:          "spinnaker-pipeline-as-service",
-				ID:            "4f6e6cf6-ffdd-425f-a2c7-3c9258ad246a",
+				ID:            uuid.New().String(),
 				Description:   "Spinnaker Pipeline as Service.",
 				Bindable:      false,
 				PlanUpdatable: truePtr(),
-				Plans: []osb.Plan{
-					{
-						Name:        "k8s-bake-approve-deploy-s3",
-						ID:          "86064792-7ea2-467b-af93-ac9694d96d5b",
-						Description: "Pipeline template for K8S(Manifest Based) provider using highlander strategy and S3 as artifact storage.",
-						Free:        truePtr(),
-						Bindable:    falsePtr(),
-					},
-					{
-						Name:        "k8s-bake-deploy-s3",
-						ID:          "86064792-7ea2-467b-af93-bc9694d96d5b",
-						Description: "Pipeline template for K8S(Manifest Based) provider using highlander strategy and S3 as artifact storage.",
-						Free:        truePtr(),
-						Bindable:    falsePtr(),
-					},
-				},
+				Plans:         plans,
 			},
 		},
 	}
@@ -70,7 +84,8 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 	}
 	CreatePipeline(restEndpoint, pipeline)
 
-	// Check to see if this is the same instance
+	// Check to see if this is the same instance.
+	// @TODO: Needs fix. Need to get persistence.
 	if i := b.instances[request.InstanceID]; i != nil {
 		if i.Match(serviceInstance) {
 			response.Exists = true
@@ -94,15 +109,16 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 }
 
 func (b *SpinnakerBroker) Deprovision(request *osb.DeprovisionRequest, c *broker.RequestContext) (*broker.DeprovisionResponse, error) {
-	// Your deprovision business logic goes here
 
-	// example implementation:
-	b.Lock()
-	defer b.Unlock()
-
+	// @TODO: This is test code. Needs to be deleted.
+	restEndpoint := b.GateUrl + "/pipelines/v2poc/k8s-bake-deploy-s3"
+	requestBody := &requestBodyDelete{
+		Application:  "v2poc",
+		PipelineName: "k8s-bake-deploy-s3",
+	}
 	response := broker.DeprovisionResponse{}
 
-	delete(b.instances, request.InstanceID)
+	DeletePipeline(restEndpoint, requestBody)
 
 	if request.AcceptsIncomplete {
 		response.Async = b.async

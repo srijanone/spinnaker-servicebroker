@@ -57,3 +57,9 @@ type Variables struct {
 	DockerImageTag               string `json:"docker_image_tag"`
 	SpinnakerApplication         string `json:"spinnaker_application"`
 }
+
+//@TODO: Needs rename.
+type requestBodyDelete struct {
+	Application  string `json:"application"`
+	PipelineName string `json:"pipelineName"`
+}

@@ -41,3 +41,22 @@ func CreatePipeline(restEndpoint string, pipeline *pipeline) {
 	}
 	log.Println(string(body))
 }
+
+func DeletePipeline(restEndpoint string, pipeline *requestBodyDelete) {
+	requestBody, _ := json.Marshal(pipeline)
+	req, err := http.NewRequest("DELETE", restEndpoint, bytes.NewBuffer(requestBody))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(string(body))
+}
