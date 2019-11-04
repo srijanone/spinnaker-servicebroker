@@ -12,7 +12,7 @@ The current release assumes that spinnaker and spinnaker-servicebroker should be
 Spinnaker ServiceBroker ships with helm charts to install it on a K8S cluster.
 
 ### Kubernetes Service Catalog
-Install Kubernetes [Service Catalog](!https://kubernetes.io/docs/tasks/service-catalog/install-service-catalog-using-helm/). *This is a pre-requisite*
+Install Kubernetes [Service Catalog](https://kubernetes.io/docs/tasks/service-catalog/install-service-catalog-using-helm/). *This is a pre-requisite*
 
 ### Spinnaker
 It is assumed that Spinnaker is installed on the same cluster using steps mentioned in https://www.spinnaker.io/setup/. As of now we only provide pipeline templates to deploy workloads on K8S cluster.
@@ -35,7 +35,7 @@ helm install charts/spinnaker-servicebroker --name spinnakar-servicebroker --nam
   NAME                      URL                                                                                                STATUS   AGE
   spinnaker-servicebroker   http://spinnaker-servicebroker-spinnaker-servicebroker.spinnaker-servicebroker.svc.cluster.local   Ready    10d
   ```
-  In case you have [svcat](!https://svc-cat.io/docs/install/) installed you should see the service offerings.
+  In case you have [svcat](https://svc-cat.io/docs/install/) installed you should see the service offerings.
   ```
   #:~ Ashish_Thakur$ svcat marketplace
               CLASS                         PLANS                       DESCRIPTION
