@@ -1,6 +1,6 @@
 # Default values for the broker-skeleton
 # Image to use
-image: srijanlabs/spinnaker-servicebroker:0.9.0
+image: srijanlabs/spinnaker-servicebroker:1.0.0-alpha
 # ImagePullPolicy; valid values are "IfNotPresent", "Never", and "Always"
 imagePullPolicy: Always
 authenticate: false
