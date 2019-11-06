@@ -5,7 +5,7 @@ func NewSpinnakerBroker(o Options) (*SpinnakerBroker, error) {
 	bl := SpinnakerBroker{
 		async:     o.Async,
 		GateUrl:   o.GateUrl,
-		instances: make(map[string]*serviceInstance, 10),
+		instances: make(map[string]*ServiceInstance, 10),
 	}
 	return &bl, nil
 }

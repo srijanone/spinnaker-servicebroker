@@ -14,14 +14,22 @@ type SpinnakerBroker struct {
 	async bool
 	sync.RWMutex
 	GateUrl   string
-	instances map[string]*serviceInstance
+	instances map[string]*ServiceInstance
 }
 
-type serviceInstance struct {
+type ServiceInstance struct {
 	ID        string
 	ServiceID string
 	PlanID    string
 	Params    map[string]interface{}
+}
+
+type ServiceBinding struct {
+	ID         string
+	InstanceID string
+	PolicyArn  string
+	RoleName   string
+	Scope      string
 }
 
 type pipeline struct {

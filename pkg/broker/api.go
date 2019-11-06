@@ -69,7 +69,7 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 
 	response := broker.ProvisionResponse{}
 
-	serviceInstance := &serviceInstance{
+	serviceInstance := &ServiceInstance{
 		ID:        request.InstanceID,
 		ServiceID: request.ServiceID,
 		PlanID:    request.PlanID,
