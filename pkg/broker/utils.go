@@ -23,7 +23,7 @@ func (b *SpinnakerBroker) ValidateBrokerAPIVersion(version string) error {
 	return nil
 }
 
-func (i *serviceInstance) Match(other *serviceInstance) bool {
+func (i *ServiceInstance) Match(other *ServiceInstance) bool {
 	return reflect.DeepEqual(i, other)
 }
 
