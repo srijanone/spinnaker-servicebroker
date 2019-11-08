@@ -2,6 +2,8 @@ package broker
 
 import (
 	"sync"
+
+	"github.com/srijanaravali/spinnaker-servicebroker/pkg/service"
 )
 
 type Options struct {
@@ -14,22 +16,7 @@ type SpinnakerBroker struct {
 	async bool
 	sync.RWMutex
 	GateUrl   string
-	instances map[string]*ServiceInstance
-}
-
-type ServiceInstance struct {
-	ID        string
-	ServiceID string
-	PlanID    string
-	Params    map[string]interface{}
-}
-
-type ServiceBinding struct {
-	ID         string
-	InstanceID string
-	PolicyArn  string
-	RoleName   string
-	Scope      string
+	instances map[string]*service.ServiceInstance
 }
 
 type pipeline struct {
