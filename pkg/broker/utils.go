@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"reflect"
 )
 
 func truePtr() *bool {
@@ -21,10 +20,6 @@ func falsePtr() *bool {
 
 func (b *SpinnakerBroker) ValidateBrokerAPIVersion(version string) error {
 	return nil
-}
-
-func (i *ServiceInstance) Match(other *ServiceInstance) bool {
-	return reflect.DeepEqual(i, other)
 }
 
 func CreatePipeline(restEndpoint string, pipeline *pipeline) {

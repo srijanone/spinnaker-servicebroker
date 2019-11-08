@@ -3,15 +3,18 @@ module github.com/srijanaravali/spinnaker-servicebroker
 go 1.13
 
 require (
+	github.com/Azure/open-service-broker-azure v1.8.3
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/coreos/etcd v3.3.10+incompatible
 	github.com/cosiner/argv v0.0.1 // indirect
 	github.com/go-delve/delve v1.3.1 // indirect
+	github.com/go-redis/redis v6.15.6+incompatible
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/uuid v1.1.1
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/imdario/mergo v0.3.8 // indirect
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kubernetes/client-go v6.0.0+incompatible // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect

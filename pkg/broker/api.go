@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	osb "github.com/pmorie/go-open-service-broker-client/v2"
 	"github.com/pmorie/osb-broker-lib/pkg/broker"
+	"github.com/srijanaravali/spinnaker-servicebroker/pkg/service"
 )
 
 func (b *SpinnakerBroker) GetCatalog(c *broker.RequestContext) (*broker.CatalogResponse, error) {
@@ -69,7 +70,7 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 
 	response := broker.ProvisionResponse{}
 
-	serviceInstance := &ServiceInstance{
+	serviceInstance := &service.ServiceInstance{
 		ID:        request.InstanceID,
 		ServiceID: request.ServiceID,
 		PlanID:    request.PlanID,
