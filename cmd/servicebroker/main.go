@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"path"
@@ -18,6 +19,7 @@ import (
 	"github.com/pmorie/osb-broker-lib/pkg/server"
 
 	"github.com/srijanaravali/spinnaker-servicebroker/pkg/broker"
+	datastore "github.com/srijanaravali/spinnaker-servicebroker/pkg/datastore/redis"
 )
 
 var options struct {
@@ -71,9 +73,16 @@ func runWithContext(ctx context.Context) error {
 		return nil
 	}
 
-	addr := ":" + strconv.Itoa(options.Port)
-
-	spinnakerBroker, err := broker.NewSpinnakerBroker(options.Options)
+	// Storage
+	storageConfig, err := datastore.GetConfigFromEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
+	store, err := datastore.NewStore(storageConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	spinnakerBroker, err := broker.NewSpinnakerBroker(options.Options, store)
 	if err != nil {
 		return err
 	}
@@ -89,27 +98,10 @@ func runWithContext(ctx context.Context) error {
 	}
 
 	s := server.New(api, reg)
-	// if options.AuthenticateK8SToken {
-	// 	// get k8s client
-	// 	k8sClient, err := getKubernetesClient(options.KubeConfig)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	// Create a User Info Authorizer.
-	// 	authz := middleware.SARUserInfoAuthorizer{
-	// 		SAR: k8sClient.AuthorizationV1().SubjectAccessReviews(),
-	// 	}
-	// 	// create TokenReviewMiddleware
-	// 	tr := middleware.TokenReviewMiddleware{
-	// 		TokenReview: k8sClient.AuthenticationV1().TokenReviews(),
-	// 		Authorizer:  authz,
-	// 	}
-	// 	// Use TokenReviewMiddleware.
-	// 	s.Router.Use(tr.Middleware)
-	// }
 
 	glog.Infof("Starting broker!")
 
+	addr := ":" + strconv.Itoa(options.Port)
 	if options.Insecure {
 		err = s.Run(ctx, addr)
 	} else {
@@ -127,28 +119,6 @@ func runWithContext(ctx context.Context) error {
 	}
 	return err
 }
-
-// func getKubernetesClient(kubeConfigPath string) (clientset.Interface, error) {
-// 	var clientConfig *clientrest.Config
-// 	var err error
-// 	if kubeConfigPath == "" {
-// 		clientConfig, err = clientrest.InClusterConfig()
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 	} else {
-// 		config, err := clientcmd.LoadFromFile(kubeConfigPath)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-
-// 		clientConfig, err = clientcmd.NewDefaultClientConfig(*config, &clientcmd.ConfigOverrides{}).ClientConfig()
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 	}
-// 	return clientset.NewForConfig(clientConfig)
-// }
 
 func cancelOnInterrupt(ctx context.Context, f context.CancelFunc) {
 	term := make(chan os.Signal)
