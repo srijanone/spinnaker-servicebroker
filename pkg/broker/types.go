@@ -3,6 +3,7 @@ package broker
 import (
 	"sync"
 
+	"github.com/srijanaravali/spinnaker-servicebroker/pkg/datastore"
 	"github.com/srijanaravali/spinnaker-servicebroker/pkg/service"
 )
 
@@ -16,6 +17,7 @@ type SpinnakerBroker struct {
 	async bool
 	sync.RWMutex
 	GateUrl   string
+	storage   datastore.DataStore
 	instances map[string]*service.ServiceInstance
 }
 
