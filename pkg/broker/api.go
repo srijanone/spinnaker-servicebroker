@@ -83,6 +83,7 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 	if err != nil {
 		log.Fatalln(err)
 	}
+	// @TODO: Needs refactoring.
 	CreatePipeline(restEndpoint, pipeline)
 
 	// Check to see if this is the same instance.
