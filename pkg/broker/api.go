@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	osb "github.com/pmorie/go-open-service-broker-client/v2"
 	"github.com/pmorie/osb-broker-lib/pkg/broker"
+	spinnaker "github.com/srijanaravali/spinnaker-servicebroker/pkg/pipeline"
 	"github.com/srijanaravali/spinnaker-servicebroker/pkg/service"
 )
 
@@ -79,12 +80,12 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 
 	params := request.Parameters
 
-	pipeline, err := NewSpinnakerPipeline(params)
+	pipeline, err := spinnaker.NewSpinnakerPipeline(params)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	// @TODO: Needs refactoring.
-	CreatePipeline(restEndpoint, pipeline)
+
+	spinnaker.CreatePipeline(restEndpoint, pipeline)
 
 	// Check to see if this is the same instance.
 	// @TODO: Needs fix. Need to get persistence.
@@ -114,13 +115,13 @@ func (b *SpinnakerBroker) Deprovision(request *osb.DeprovisionRequest, c *broker
 
 	// @TODO: This is test code. Needs to be deleted.
 	restEndpoint := b.GateUrl + "/pipelines/v2poc/k8s-bake-deploy-s3"
-	requestBody := &requestBodyDelete{
+	requestBody := &spinnaker.DeletePayload{
 		Application:  "v2poc",
 		PipelineName: "k8s-bake-deploy-s3",
 	}
 	response := broker.DeprovisionResponse{}
 
-	DeletePipeline(restEndpoint, requestBody)
+	spinnaker.DeletePipeline(restEndpoint, requestBody)
 
 	if request.AcceptsIncomplete {
 		response.Async = b.async

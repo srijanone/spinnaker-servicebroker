@@ -1,9 +1,17 @@
-package broker
+package pipeline
+
+import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
+	"log"
+	"net/http"
+)
 
 // Construct a pipeline object.
-func NewSpinnakerPipeline(params map[string]interface{}) (*pipeline, error) {
+func NewSpinnakerPipeline(params map[string]interface{}) (*SpinnakerPipeline, error) {
 
-	pipeline := &pipeline{
+	pipeline := &SpinnakerPipeline{
 		Schema: "v2",
 		Template: Template{
 			ArtifactAccount: "front50ArtifactCredentials",
@@ -34,4 +42,38 @@ func NewSpinnakerPipeline(params map[string]interface{}) (*pipeline, error) {
 	}
 
 	return pipeline, nil
+}
+
+func CreatePipeline(restEndpoint string, pipeline *SpinnakerPipeline) {
+	requestBody, _ := json.Marshal(pipeline)
+	resp, err := http.Post(restEndpoint, "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(string(body))
+}
+
+func DeletePipeline(restEndpoint string, payload *DeletePayload) {
+	requestBody, _ := json.Marshal(payload)
+	req, err := http.NewRequest("DELETE", restEndpoint, bytes.NewBuffer(requestBody))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(string(body))
 }
