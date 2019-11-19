@@ -44,7 +44,7 @@ func NewSpinnakerPipeline(params map[string]interface{}) (*SpinnakerPipeline, er
 	return pipeline, nil
 }
 
-func CreatePipeline(restEndpoint string, pipeline *SpinnakerPipeline) {
+func CreatePipeline(restEndpoint string, pipeline *SpinnakerPipeline) bool {
 	requestBody, _ := json.Marshal(pipeline)
 	resp, err := http.Post(restEndpoint, "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
@@ -55,11 +55,13 @@ func CreatePipeline(restEndpoint string, pipeline *SpinnakerPipeline) {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalln(err)
+		return false
 	}
 	log.Println(string(body))
+	return true
 }
 
-func DeletePipeline(restEndpoint string, payload *DeletePayload) {
+func DeletePipeline(restEndpoint string, payload *DeletePayload) bool {
 	requestBody, _ := json.Marshal(payload)
 	req, err := http.NewRequest("DELETE", restEndpoint, bytes.NewBuffer(requestBody))
 	if err != nil {
@@ -68,12 +70,13 @@ func DeletePipeline(restEndpoint string, payload *DeletePayload) {
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Fatalln(err)
+		return false
 	}
 	defer resp.Body.Close()
-
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	log.Println(string(body))
+	return true
 }

@@ -2,6 +2,7 @@ package broker
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -85,7 +86,9 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 		log.Fatalln(err)
 	}
 
-	spinnaker.CreatePipeline(restEndpoint, pipeline)
+	if spinnaker.CreatePipeline(restEndpoint, pipeline) {
+		b.storage.WriteInstance(*serviceInstance)
+	}
 
 	// Check to see if this is the same instance.
 	// @TODO: Needs fix. Need to get persistence.
@@ -93,17 +96,15 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 		if i.Match(serviceInstance) {
 			response.Exists = true
 			return &response, nil
-		} else {
-			// Instance ID in use, this is a conflict.
-			description := "InstanceID in use"
-			return nil, osb.HTTPStatusCodeError{
-				StatusCode:  http.StatusConflict,
-				Description: &description,
-			}
+		}
+		// Instance ID in use, this is a conflict.
+		description := "InstanceID in use"
+		return nil, osb.HTTPStatusCodeError{
+			StatusCode:  http.StatusConflict,
+			Description: &description,
 		}
 	}
 	b.instances[request.InstanceID] = serviceInstance
-
 	if request.AcceptsIncomplete {
 		response.Async = b.async
 	}
@@ -113,16 +114,22 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 
 func (b *SpinnakerBroker) Deprovision(request *osb.DeprovisionRequest, c *broker.RequestContext) (*broker.DeprovisionResponse, error) {
 
+	serviceInstance, _, _ := b.storage.GetInstance(request.InstanceID)
+	fmt.Printf("%+v\n", serviceInstance)
+
+	appName := serviceInstance.Params["spinnaker_application"].(string)
+	pipeName := serviceInstance.Params["pipeline_name"].(string)
 	// @TODO: This is test code. Needs to be deleted.
-	restEndpoint := b.GateUrl + "/pipelines/v2poc/k8s-bake-deploy-s3"
+	restEndpoint := b.GateUrl + "/pipelines/" + appName + "/" + pipeName
 	requestBody := &spinnaker.DeletePayload{
-		Application:  "v2poc",
-		PipelineName: "k8s-bake-deploy-s3",
+		Application:  appName,
+		PipelineName: pipeName,
 	}
 	response := broker.DeprovisionResponse{}
 
-	spinnaker.DeletePipeline(restEndpoint, requestBody)
-
+	if spinnaker.DeletePipeline(restEndpoint, requestBody) {
+		b.storage.DeleteInstance(request.InstanceID)
+	}
 	if request.AcceptsIncomplete {
 		response.Async = b.async
 	}
