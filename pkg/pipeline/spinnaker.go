@@ -44,7 +44,7 @@ func NewSpinnakerPipeline(params map[string]interface{}) (*SpinnakerPipeline, er
 	return pipeline, nil
 }
 
-func CreatePipeline(restEndpoint string, pipeline *SpinnakerPipeline) {
+func CreatePipeline(restEndpoint string, pipeline *SpinnakerPipeline) bool {
 	requestBody, _ := json.Marshal(pipeline)
 	resp, err := http.Post(restEndpoint, "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
@@ -55,8 +55,10 @@ func CreatePipeline(restEndpoint string, pipeline *SpinnakerPipeline) {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatalln(err)
+		return false
 	}
 	log.Println(string(body))
+	return true
 }
 
 func DeletePipeline(restEndpoint string, payload *DeletePayload) {

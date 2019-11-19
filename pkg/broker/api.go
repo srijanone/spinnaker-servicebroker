@@ -85,7 +85,9 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 		log.Fatalln(err)
 	}
 
-	spinnaker.CreatePipeline(restEndpoint, pipeline)
+	if spinnaker.CreatePipeline(restEndpoint, pipeline) {
+		b.storage.WriteInstance(*serviceInstance)
+	}
 
 	// Check to see if this is the same instance.
 	// @TODO: Needs fix. Need to get persistence.
@@ -93,17 +95,15 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 		if i.Match(serviceInstance) {
 			response.Exists = true
 			return &response, nil
-		} else {
-			// Instance ID in use, this is a conflict.
-			description := "InstanceID in use"
-			return nil, osb.HTTPStatusCodeError{
-				StatusCode:  http.StatusConflict,
-				Description: &description,
-			}
+		}
+		// Instance ID in use, this is a conflict.
+		description := "InstanceID in use"
+		return nil, osb.HTTPStatusCodeError{
+			StatusCode:  http.StatusConflict,
+			Description: &description,
 		}
 	}
 	b.instances[request.InstanceID] = serviceInstance
-
 	if request.AcceptsIncomplete {
 		response.Async = b.async
 	}
@@ -122,7 +122,7 @@ func (b *SpinnakerBroker) Deprovision(request *osb.DeprovisionRequest, c *broker
 	response := broker.DeprovisionResponse{}
 
 	spinnaker.DeletePipeline(restEndpoint, requestBody)
-
+	b.storage.DeleteInstance(request.InstanceID)
 	if request.AcceptsIncomplete {
 		response.Async = b.async
 	}
