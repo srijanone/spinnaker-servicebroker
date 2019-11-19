@@ -121,8 +121,9 @@ func (b *SpinnakerBroker) Deprovision(request *osb.DeprovisionRequest, c *broker
 	}
 	response := broker.DeprovisionResponse{}
 
-	spinnaker.DeletePipeline(restEndpoint, requestBody)
-	b.storage.DeleteInstance(request.InstanceID)
+	if spinnaker.DeletePipeline(restEndpoint, requestBody) {
+		b.storage.DeleteInstance(request.InstanceID)
+	}
 	if request.AcceptsIncomplete {
 		response.Async = b.async
 	}
