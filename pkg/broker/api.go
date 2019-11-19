@@ -2,6 +2,7 @@ package broker
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -113,11 +114,16 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 
 func (b *SpinnakerBroker) Deprovision(request *osb.DeprovisionRequest, c *broker.RequestContext) (*broker.DeprovisionResponse, error) {
 
+	serviceInstance, _, _ := b.storage.GetInstance(request.InstanceID)
+	fmt.Printf("%+v\n", serviceInstance)
+
+	appName := serviceInstance.Params["spinnaker_application"].(string)
+	pipeName := serviceInstance.Params["pipeline_name"].(string)
 	// @TODO: This is test code. Needs to be deleted.
-	restEndpoint := b.GateUrl + "/pipelines/v2poc/k8s-bake-deploy-s3"
+	restEndpoint := b.GateUrl + "/pipelines/" + appName + "/" + pipeName
 	requestBody := &spinnaker.DeletePayload{
-		Application:  "v2poc",
-		PipelineName: "k8s-bake-deploy-s3",
+		Application:  appName,
+		PipelineName: pipeName,
 	}
 	response := broker.DeprovisionResponse{}
 

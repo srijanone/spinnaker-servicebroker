@@ -9,7 +9,7 @@ const envconfigPrefix = "STORAGE"
 // Config represents configuration options for the Redis-based implementation
 // of the Store interface
 type Config struct {
-	RedisHost      string `envconfig:"REDIS_HOST"` // required:"true"`
+	RedisHost      string `envconfig:"REDIS_HOST" required:"true"`
 	RedisPort      int    `envconfig:"REDIS_PORT"`
 	RedisPassword  string `envconfig:"REDIS_PASSWORD"`
 	RedisDB        int    `envconfig:"REDIS_DB"`
@@ -21,7 +21,7 @@ type Config struct {
 // applied. Callers are then free to set custom values for the remaining fields
 // and/or override default values.
 func NewConfigWithDefaults() Config {
-	return Config{RedisHost: "localhost", RedisPort: 6379}
+	return Config{RedisPort: 6379}
 }
 
 // GetConfigFromEnvironment returns configuration derived from environment
