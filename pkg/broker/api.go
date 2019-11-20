@@ -29,18 +29,22 @@ func (b *SpinnakerBroker) GetCatalog(c *broker.RequestContext) (*broker.CatalogR
 
 	json.Unmarshal([]byte(body), &pipelineTemplates)
 	var plans []osb.Plan
+	set := make(map[string]bool)
 	for _, pipelineTemplate := range pipelineTemplates {
 		data := pipelineTemplate.(map[string]interface{})
 		name := data["id"].(string)
 		metadata := data["metadata"].(map[string]interface{})
-		plan := osb.Plan{
-			Name:        name,
-			ID:          uuid.New().String(),
-			Description: metadata["description"].(string),
-			Free:        truePtr(),
-			Bindable:    falsePtr(),
+		if !set[name] {
+			plan := osb.Plan{
+				Name:        name,
+				ID:          uuid.New().String(),
+				Description: metadata["description"].(string),
+				Free:        truePtr(),
+				Bindable:    falsePtr(),
+			}
+			plans = append(plans, plan)
 		}
-		plans = append(plans, plan)
+		set[name] = true
 	}
 
 	response := &broker.CatalogResponse{}
