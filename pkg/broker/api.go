@@ -2,7 +2,6 @@ package broker
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -96,12 +95,13 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 		if i.Match(serviceInstance) {
 			response.Exists = true
 			return &response, nil
-		}
-		// Instance ID in use, this is a conflict.
-		description := "InstanceID in use"
-		return nil, osb.HTTPStatusCodeError{
-			StatusCode:  http.StatusConflict,
-			Description: &description,
+		} else {
+			// Instance ID in use, this is a conflict.
+			description := "InstanceID in use"
+			return nil, osb.HTTPStatusCodeError{
+				StatusCode:  http.StatusConflict,
+				Description: &description,
+			}
 		}
 	}
 	b.instances[request.InstanceID] = serviceInstance
@@ -114,16 +114,19 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 
 func (b *SpinnakerBroker) Deprovision(request *osb.DeprovisionRequest, c *broker.RequestContext) (*broker.DeprovisionResponse, error) {
 
-	serviceInstance, _, _ := b.storage.GetInstance(request.InstanceID)
-	fmt.Printf("%+v\n", serviceInstance)
+	serviceInstance, _, err := b.storage.GetInstance(request.InstanceID)
 
-	appName := serviceInstance.Params["spinnaker_application"].(string)
-	pipeName := serviceInstance.Params["pipeline_name"].(string)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	applicatioName := serviceInstance.Params["spinnaker_application"].(string)
+	pipelineName := serviceInstance.Params["pipeline_name"].(string)
 	// @TODO: This is test code. Needs to be deleted.
-	restEndpoint := b.GateUrl + "/pipelines/" + appName + "/" + pipeName
+	restEndpoint := b.GateUrl + "/pipelines/" + applicatioName + "/" + pipelineName
 	requestBody := &spinnaker.DeletePayload{
-		Application:  appName,
-		PipelineName: pipeName,
+		Application:  applicatioName,
+		PipelineName: pipelineName,
 	}
 	response := broker.DeprovisionResponse{}
 
