@@ -13,3 +13,33 @@ tls:
 deployClusterServiceBroker: true
 spinnaker:
   gate_url: http://spin-gate.spinnaker.svc.cluster.local:8084
+
+
+## Redis configuration 
+redis:
+  ## Should a containerized Redis server be included in the Helm release?
+  embedded: true
+
+  ## Required if not embedded
+  host: 
+
+  ## If not embedded, specifies the port for the client to connect to.
+  ## 6380 is the port often used for Redis secured using TLS.
+  port: 6380
+
+  ## If embedded, specifies the password the server will require AND the
+  ## password the client will use. If not embedded, this only specifies the
+  ## password the client will use. It must be the correct password for whatever
+  ## external Redis server it connects to.
+  ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
+  redisPassword: password
+
+  ## If not embedded, specifies whether to use a secure connection to the
+  ## remote Redis host
+  enableTls: true
+
+  ## Used to introduce a unique identifier to enable multiple OSBA instances 
+  ## to share one redis. If nothing is provided here, no additional identifier
+  ## is added. Note, you should not change this if you have an existing OSBA
+  ## instance.
+  prefix:

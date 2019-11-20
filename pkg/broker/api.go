@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 	osb "github.com/pmorie/go-open-service-broker-client/v2"
 	"github.com/pmorie/osb-broker-lib/pkg/broker"
+	spinnaker "github.com/srijanaravali/spinnaker-servicebroker/pkg/pipeline"
+	"github.com/srijanaravali/spinnaker-servicebroker/pkg/service"
 )
 
 func (b *SpinnakerBroker) GetCatalog(c *broker.RequestContext) (*broker.CatalogResponse, error) {
@@ -27,18 +29,22 @@ func (b *SpinnakerBroker) GetCatalog(c *broker.RequestContext) (*broker.CatalogR
 
 	json.Unmarshal([]byte(body), &pipelineTemplates)
 	var plans []osb.Plan
+	set := make(map[string]bool)
 	for _, pipelineTemplate := range pipelineTemplates {
 		data := pipelineTemplate.(map[string]interface{})
 		name := data["id"].(string)
 		metadata := data["metadata"].(map[string]interface{})
-		plan := osb.Plan{
-			Name:        name,
-			ID:          uuid.New().String(),
-			Description: metadata["description"].(string),
-			Free:        truePtr(),
-			Bindable:    falsePtr(),
+		if !set[name] {
+			plan := osb.Plan{
+				Name:        name,
+				ID:          uuid.New().String(),
+				Description: metadata["description"].(string),
+				Free:        truePtr(),
+				Bindable:    falsePtr(),
+			}
+			plans = append(plans, plan)
 		}
-		plans = append(plans, plan)
+		set[name] = true
 	}
 
 	response := &broker.CatalogResponse{}
@@ -69,7 +75,7 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 
 	response := broker.ProvisionResponse{}
 
-	serviceInstance := &serviceInstance{
+	serviceInstance := &service.ServiceInstance{
 		ID:        request.InstanceID,
 		ServiceID: request.ServiceID,
 		PlanID:    request.PlanID,
@@ -78,11 +84,14 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 
 	params := request.Parameters
 
-	pipeline, err := NewSpinnakerPipeline(params)
+	pipeline, err := spinnaker.NewSpinnakerPipeline(params)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	CreatePipeline(restEndpoint, pipeline)
+
+	if spinnaker.CreatePipeline(restEndpoint, pipeline) {
+		b.storage.WriteInstance(*serviceInstance)
+	}
 
 	// Check to see if this is the same instance.
 	// @TODO: Needs fix. Need to get persistence.
@@ -100,7 +109,6 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 		}
 	}
 	b.instances[request.InstanceID] = serviceInstance
-
 	if request.AcceptsIncomplete {
 		response.Async = b.async
 	}
@@ -110,16 +118,25 @@ func (b *SpinnakerBroker) Provision(request *osb.ProvisionRequest, c *broker.Req
 
 func (b *SpinnakerBroker) Deprovision(request *osb.DeprovisionRequest, c *broker.RequestContext) (*broker.DeprovisionResponse, error) {
 
+	serviceInstance, _, err := b.storage.GetInstance(request.InstanceID)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	applicatioName := serviceInstance.Params["spinnaker_application"].(string)
+	pipelineName := serviceInstance.Params["pipeline_name"].(string)
 	// @TODO: This is test code. Needs to be deleted.
-	restEndpoint := b.GateUrl + "/pipelines/v2poc/k8s-bake-deploy-s3"
-	requestBody := &requestBodyDelete{
-		Application:  "v2poc",
-		PipelineName: "k8s-bake-deploy-s3",
+	restEndpoint := b.GateUrl + "/pipelines/" + applicatioName + "/" + pipelineName
+	requestBody := &spinnaker.DeletePayload{
+		Application:  applicatioName,
+		PipelineName: pipelineName,
 	}
 	response := broker.DeprovisionResponse{}
 
-	DeletePipeline(restEndpoint, requestBody)
-
+	if spinnaker.DeletePipeline(restEndpoint, requestBody) {
+		b.storage.DeleteInstance(request.InstanceID)
+	}
 	if request.AcceptsIncomplete {
 		response.Async = b.async
 	}
