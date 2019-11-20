@@ -1,0 +1,8 @@
+version: "3.2"
+services:
+  test-redis:
+    image: &redis-image redis:3.2.4
+  broker-redis:
+    image: *redis-image
+    ports:
+    - "6379:6379"

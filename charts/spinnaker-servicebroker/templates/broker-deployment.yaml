@@ -34,6 +34,19 @@ spec:
         - --insecure
         ports:
         - containerPort: 8443
+        env:
+        - name: REDIS_HOST
+          {{- if .Values.redis.embedded }}
+          value: {{ .Release.Name }}-redis
+          {{- else }}
+          value: {{ required "A value is required for redis.host" .Values.redis.host }}
+        - name: REDIS_PORT
+          value: {{ .Values.redis.port | quote }}
+        - name: REDIS_ENABLE_TLS
+          value: {{ .Values.redis.enableTls | quote }}
+          {{- end }}
+        - name: REDIS_PREFIX
+          value: {{ .Values.redis.prefix | quote }}
         readinessProbe:
           tcpSocket:
             port: 8443
